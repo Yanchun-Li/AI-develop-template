@@ -1,0 +1,5 @@
+Design system reference for agents.
+
+- Document tokens, spacing, color rules, typography, and component states.
+- Prefer plain text or markdown exports that are easy for agents to search.
+- Include naming conventions and anti-patterns.

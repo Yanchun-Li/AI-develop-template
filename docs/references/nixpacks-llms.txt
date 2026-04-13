@@ -1,0 +1,5 @@
+Nixpacks reference placeholder for agents.
+
+- Describe build detection rules.
+- Document environment assumptions.
+- Add deployment-specific constraints when the stack is chosen.

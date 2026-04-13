@@ -1,0 +1,5 @@
+uv reference placeholder for agents.
+
+- Document workspace commands.
+- Include package, lockfile, and test workflows.
+- Keep examples short and copyable.
