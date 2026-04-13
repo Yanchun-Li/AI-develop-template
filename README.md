@@ -15,6 +15,17 @@ Harness engineering template for agent-first development.
 python3 scripts/lint_repo_rules.py
 ```
 
+## Enable Automatic Linting
+
+Install the repository Git hooks once per clone:
+
+```bash
+bash scripts/install_git_hooks.sh
+```
+
+After that, `python3 scripts/lint_repo_rules.py` runs automatically on every `git commit`
+through `.githooks/pre-commit`.
+
 ## Prompt
 
 ログイン機能を追加したい。
