@@ -20,6 +20,8 @@
 | `llm-native` | chatbot / agent / RAG / copilot | `docs/architectures/llm-native.md` |
 | `ml-backend` | 顔認証、画像分類 API、推薦 serving | `docs/architectures/ml-backend.md` |
 | `ml-pipeline` | 自分でモデルを学習する batch / training | `docs/architectures/ml-pipeline.md` |
+| `web-app` | SaaS dashboard / admin / CRUD / full-stack web app | `docs/architectures/web-app.md` |
+| `mobile-app` | スマホアプリ / 端末機能 / offline / push | `docs/architectures/mobile-app.md` |
 
 選び方の判断基準は `docs/architectures/index.md` を参照してください。
 

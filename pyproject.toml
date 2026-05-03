@@ -1,7 +1,7 @@
 [project]
 name = "ai-develop-template"
 version = "0.1.0"
-description = "AI-driven development template with selectable architectures (llm-native / ml-backend / ml-pipeline)"
+description = "AI-driven development template with selectable architectures"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = []
@@ -52,6 +52,8 @@ exclude-newer = "2026-04-21T00:00:00Z"
 #   - "llm-native"   : Compound AI / RAG / Agent. See docs/architectures/llm-native.md
 #   - "ml-backend"   : Hexagonal backend with ML adapter. See docs/architectures/ml-backend.md
 #   - "ml-pipeline"  : Layered ML pipeline. See docs/architectures/ml-pipeline.md
+#   - "web-app"      : Full-stack web application. See docs/architectures/web-app.md
+#   - "mobile-app"   : Smartphone application. See docs/architectures/mobile-app.md
 #
 # `[tool.repo-arch.layers]` maps each top-level layer directory under `src`
 # to the list of layers it is allowed to import from. When kind = "tbd",

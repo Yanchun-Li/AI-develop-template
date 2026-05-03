@@ -6,12 +6,14 @@
 ## 選択肢
 
 
-| kind          | 用途の典型                                         | 主な動詞                                          | HTTP     |
-| ------------- | --------------------------------------------- | --------------------------------------------- | -------- |
-| `tbd`         | 未選択（テンプレ初期値）                                  | —                                             | —        |
-| `llm-native`  | chatbot / agent / RAG / copilot               | `retrieve` / `plan` / `generate` / `eval`     | あってもなくても |
-| `ml-backend`  | 顔認証、画像分類 API、推薦 serving など、事前学習モデルを使う backend | `register` / `verify` / `predict`             | 必須寄り     |
-| `ml-pipeline` | 自分でモデルを学習する batch / training                  | `train` / `evaluate` / `predict` / `backfill` | 不要       |
+| kind | 用途の典型 | 主な動詞 | HTTP |
+| --- | --- | --- | --- |
+| `tbd` | 未選択（テンプレ初期値） | — | — |
+| `llm-native` | chatbot / agent / RAG / copilot | `retrieve` / `plan` / `generate` / `eval` | あってもなくても |
+| `ml-backend` | 顔認証、画像分類 API、推薦 serving など、事前学習モデルを使う backend | `register` / `verify` / `predict` | 必須寄り |
+| `ml-pipeline` | 自分でモデルを学習する batch / training | `train` / `evaluate` / `predict` / `backfill` | 不要 |
+| `web-app` | SaaS dashboard、admin、CRUD、full-stack web app | `create` / `update` / `approve` / `view` | 必須 |
+| `mobile-app` | スマホアプリ、端末機能、オフライン、push、位置情報 | `capture` / `sync` / `navigate` / `notify` | 必須寄り |
 
 
 ## 選び方
@@ -21,7 +23,9 @@
 1. **対話 / 文書生成 / 検索 / agent が中心** なら `llm-native`
 2. **HTTP API として model を提供** し、業務ルール（試行制限・監査など）が無視できないなら `ml-backend`
 3. **自分でモデルを学習** し batch / scheduled job が中心なら `ml-pipeline`
-4. 複数該当する場合は **メインの動詞** で選ぶ。サブ機能は provider / 別 module として吸収する
+4. **UI-heavy な Web 体験** が中心なら `web-app`
+5. **端末機能や mobile screen state** が中心なら `mobile-app`
+6. 複数該当する場合は **メインの動詞** で選ぶ。サブ機能は provider / 別 module として吸収する
 
 ## 切り替え手順
 
@@ -36,4 +40,5 @@
 - `llm-native.md`: Compound AI System / RAG / Agent
 - `ml-backend.md`: Hexagonal backend with ML adapter
 - `ml-pipeline.md`: Layered ML pipeline
-
+- `web-app.md`: Full-stack web application
+- `mobile-app.md`: Smartphone application

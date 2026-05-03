@@ -45,6 +45,8 @@
 | `llm-native` | `contract / retrieval / tool / prompt / agent / eval / pipeline / entrypoint / providers` | `docs/architectures/llm-native.md` |
 | `ml-backend` | `domain / usecase / handler / infra / providers` | `docs/architectures/ml-backend.md` |
 | `ml-pipeline` | `schema / feature / model / evaluation / pipeline / entrypoint / providers` | `docs/architectures/ml-pipeline.md` |
+| `web-app` | `contract / domain / usecase / data / ui / route / providers` | `docs/architectures/web-app.md` |
+| `mobile-app` | `contract / domain / usecase / data / presentation / navigation / platform / providers` | `docs/architectures/mobile-app.md` |
 
 ## 構成を決める原則
 

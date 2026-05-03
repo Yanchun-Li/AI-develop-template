@@ -23,7 +23,7 @@
 
 ## 次に AI がやるとよいこと
 
-- 利用者にアーキテクチャ選択を確認する（`llm-native` / `ml-backend` / `ml-pipeline`）
+- 利用者にアーキテクチャ選択を確認する（`llm-native` / `ml-backend` / `ml-pipeline` / `web-app` / `mobile-app`）
 - 選択後に `[tool.repo-arch]` と本ファイルの「現在のアーキテクチャ」を更新する
 - `docs/PRODUCT_SENSE.md` をプロジェクト固有内容で埋める
 - `docs/product-specs/` に最初の機能仕様を書く

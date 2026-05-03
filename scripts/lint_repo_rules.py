@@ -18,14 +18,47 @@ from __future__ import annotations
 
 import ast
 import sys
-import tomllib
 from pathlib import Path
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11 fallback for this repo's small config subset.
+    tomllib = None
 
 ROOT = Path(__file__).resolve().parent.parent
 PYPROJECT_PATH = ROOT / "pyproject.toml"
 PYTHON_SUFFIX = ".py"
 
-STDLIB_MODULES = set(sys.stdlib_module_names) | {"__future__"}
+STDLIB_MODULES = set(
+    getattr(
+        sys,
+        "stdlib_module_names",
+        {
+            "abc",
+            "argparse",
+            "ast",
+            "asyncio",
+            "collections",
+            "contextlib",
+            "dataclasses",
+            "datetime",
+            "decimal",
+            "enum",
+            "functools",
+            "itertools",
+            "json",
+            "logging",
+            "math",
+            "os",
+            "pathlib",
+            "re",
+            "random",
+            "sys",
+            "typing",
+            "uuid",
+        },
+    )
+) | {"__future__"}
 
 
 class ConfigError(RuntimeError):
@@ -78,8 +111,11 @@ def load_config() -> dict:
     if not PYPROJECT_PATH.exists():
         raise ConfigError("pyproject.toml not found at repository root")
 
-    with PYPROJECT_PATH.open("rb") as fh:
-        data = tomllib.load(fh)
+    if tomllib is not None:
+        with PYPROJECT_PATH.open("rb") as fh:
+            data = tomllib.load(fh)
+    else:
+        data = load_pyproject_fallback(PYPROJECT_PATH)
 
     repo_arch = data.get("tool", {}).get("repo-arch", {})
     if not repo_arch:
@@ -105,6 +141,51 @@ def load_config() -> dict:
         "layers": layers,
         "provider_only": provider_only,
     }
+
+
+def load_pyproject_fallback(path: Path) -> dict:
+    """Parse only the `[tool.repo-arch]` tables needed by this linter.
+
+    This keeps `python3 scripts/lint_repo_rules.py` usable on macOS system
+    Python 3.9 without adding a `tomli` runtime dependency to the template.
+    """
+
+    repo_arch: dict = {}
+    layers: dict[str, list[str]] = {}
+    provider_only: dict[str, list[str]] = {}
+    section: str | None = None
+
+    for raw_line in path.read_text().splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("[") and line.endswith("]"):
+            section = line.strip("[]")
+            continue
+        if "=" not in line:
+            continue
+
+        key, raw_value = [part.strip() for part in line.split("=", maxsplit=1)]
+        value = parse_toml_scalar_or_list(raw_value)
+
+        if section == "tool.repo-arch":
+            repo_arch[key] = value
+        elif section == "tool.repo-arch.layers":
+            layers[key] = value
+        elif section == "tool.repo-arch.provider_only":
+            provider_only[key] = value
+
+    repo_arch["layers"] = layers
+    repo_arch["provider_only"] = provider_only
+    return {"tool": {"repo-arch": repo_arch}}
+
+
+def parse_toml_scalar_or_list(raw_value: str):
+    value_without_comment = raw_value.split("#", maxsplit=1)[0].strip()
+    try:
+        return ast.literal_eval(value_without_comment)
+    except (SyntaxError, ValueError):
+        return value_without_comment.strip('"')
 
 
 def parse_imports(file_path: Path, errors: list[str]) -> list[str]:
