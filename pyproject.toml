@@ -1,0 +1,132 @@
+[project]
+name = "ai-develop-template"
+version = "0.1.0"
+description = "AI-driven development template with selectable architectures (llm-native / ml-backend / ml-pipeline)"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+# Optional dependency examples from the reference ML projects.
+# Add them only when the new repository actually needs that capability.
+#
+# gRPC / protobuf:
+#   uv add grpcio==1.80.0 protobuf==6.33.6
+#   uv add --dev grpcio-tools==1.80.0
+#
+# database:
+#   uv add sqlalchemy==2.0.49 'psycopg[binary]==3.2.13'
+#
+# AI workflow:
+#   uv add langchain-anthropic==0.3.13 langgraph==1.1.6 langsmith==0.7.31
+#
+# geo:
+#   uv add geoalchemy2==0.15.2 shapely==2.0.6
+#
+# observability:
+#   uv add aws-opentelemetry-distro==0.17.0
+
+[dependency-groups]
+dev = [
+    "hypothesis==6.151.12",
+    "pytest==9.0.3",
+    "pytest-cov==7.1.0",
+    "pytest-mock==3.15.1",
+    "ruff==0.15.10",
+]
+
+[tool.uv]
+package = false
+# Move this forward intentionally when refreshing uv.lock.
+exclude-newer = "2026-04-21T00:00:00Z"
+
+# ---------------------------------------------------------------------------
+# Repository architecture selection.
+#
+# `kind` declares which architecture this project follows. Pick one from
+# docs/architectures/, then replace `kind` and the `[tool.repo-arch.layers]`
+# table below with the snippet from that doc.
+#
+# Allowed values:
+#   - "tbd"          : not yet selected (initial state). Layer linting is
+#                      skipped while this is set.
+#   - "llm-native"   : Compound AI / RAG / Agent. See docs/architectures/llm-native.md
+#   - "ml-backend"   : Hexagonal backend with ML adapter. See docs/architectures/ml-backend.md
+#   - "ml-pipeline"  : Layered ML pipeline. See docs/architectures/ml-pipeline.md
+#
+# `[tool.repo-arch.layers]` maps each top-level layer directory under `src`
+# to the list of layers it is allowed to import from. When kind = "tbd",
+# this table is ignored.
+#
+# `[tool.repo-arch.provider_only]` lists vendor SDKs that may only be
+# imported from within `provider_dirs`. Stdlib modules are always allowed.
+# ---------------------------------------------------------------------------
+[tool.repo-arch]
+kind = "tbd"
+src = "src"
+provider_dirs = ["providers"]
+
+[tool.repo-arch.layers]
+# Empty while kind = "tbd". Replace with the snippet from the chosen
+# docs/architectures/<kind>.md when selecting an architecture.
+
+[tool.repo-arch.provider_only]
+libraries = []
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+addopts = "--cov --cov-branch -v -s"
+markers = [
+    "e2e: marks tests that communicate with external services or full server paths",
+    "slow: marks tests that are slow to run",
+    "smoke: marks tests for essential functionality",
+]
+
+[tool.ruff]
+src = ["src", "scripts", "tests"]
+target-version = "py312"
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "third_party",
+]
+line-length = 120
+
+[tool.ruff.lint]
+fixable = ["ALL"]
+unfixable = []
+select = [
+    "A",  # flake8-builtin
+    "B",  # flake8-bugbear
+    "E",  # pycodestyle error
+    "F",  # Pyflakes
+    "I",  # isort
+    "N",  # pep8-naming
+    "W",  # pycodestyle warning
+    "PL", # Pylint
+    "UP", # pyupgrade
+]
+ignore = [
+    "B905",    # Zip-without-explicit-strict
+    "F403",    # Unable to detect undefined names
+    "N812",    # Lowercase imported as non-lowercase
+    "N815",    # Variable name contains mixed case
+    "N999",    # Invalid module name
+    "PLR0912", # Too many branches
+    "PLR0913", # Too many arguments in function definition
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison
+]
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/**" = ["E402"]
+"tests/**" = ["PLR2004", "PLR0915"]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "auto"

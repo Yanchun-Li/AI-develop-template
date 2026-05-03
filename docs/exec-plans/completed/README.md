@@ -1,3 +1,5 @@
-# Completed Execution Plans
+# 完了済みの実行計画
 
-Move finished execution plans here without deleting decision history.
+このテンプレートでは、完了した個別作業の execution plan は原則として残しません。
+
+長期的に必要な判断履歴は、`docs/design-docs/`、`ARCHITECTURE.md`、`RULES.md` などの正本へ移します。

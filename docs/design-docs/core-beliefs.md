@@ -1,8 +1,8 @@
-# Core Beliefs
+# 基本思想
 
-1. Humans steer, agents execute.
-2. The repository is the system of record.
-3. Agent legibility matters as much as human readability.
-4. Plans, constraints, and architecture should be versioned.
-5. Mechanical checks are stronger than prose-only rules.
-6. Throughput increases only when review and validation loops are cheap.
+1. 人間が方針を決め、エージェントが実行する。
+2. リポジトリを一次情報源とする。
+3. AI にとっての読みやすさは、人間にとっての読みやすさと同じくらい重要である。
+4. 計画、制約、アーキテクチャはバージョン管理する。
+5. prose だけのルールより、機械的検証のあるルールを優先する。
+6. レビューと検証のループが安いほど、開発スループットは上がる。

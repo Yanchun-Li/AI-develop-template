@@ -1,16 +1,55 @@
 # PRODUCT_SENSE.md
 
-Agents can ship quickly only when product intent is explicit.
+AI が素早く正しく動くためには、プロダクト意図が明確である必要があります。このファイルは、新しいプロジェクトで最初に埋めるプロダクト判断の正本です。
 
-## Product Rules
+全項目が `TBD` の初期状態では、AI は値を推測しません。また、初期状態であること自体を不整合として報告する必要はありません。
 
-- Write down user journeys, acceptance criteria, and non-goals.
-- Separate must-have behavior from nice-to-have behavior.
-- Keep product decisions versioned in the repository.
+## プロダクト概要
 
-## Default Questions
+- プロダクト名: `TBD`
+- プロダクト種別: `TBD`
+- 中核価値: `TBD`
 
-- Who is the user?
-- What problem is solved?
-- What is the minimum acceptable behavior?
-- What should not be built yet?
+## 主な対象ユーザー
+
+- 初期ターゲット: `TBD`
+- 中期ターゲット: `TBD`
+- 想定ユーザー像: `TBD`
+
+## 解決したい課題
+
+- `TBD`
+- `TBD`
+- `TBD`
+
+## 提供したい価値
+
+- `TBD`
+- `TBD`
+- `TBD`
+
+## 現在の MVP 機能
+
+- `TBD`
+- `TBD`
+- `TBD`
+
+## MVP として重要なこと
+
+- end-to-end で成立させる最小体験を明確にする
+- 高度な最適化よりも、ユーザー価値と検証可能性を優先する
+- 将来の拡張を見越して、機能の責務と契約を docs に残す
+
+## 初期フェーズでやらないこと
+
+- `TBD`
+- `TBD`
+- `TBD`
+
+## 変更時の確認質問
+
+- この変更は誰のどの摩擦を減らすのか
+- MVP に必須か、それとも後回しにできるか
+- 初回利用ユーザーでも理解できるか
+- 他領域との契約変更が発生するか
+- 受け入れ条件として表現できるか

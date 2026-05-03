@@ -1,16 +1,16 @@
 # PLANS.md
 
-Plans are first-class repository artifacts.
+計画は、作業中の補助として使います。テンプレート自体には、個別作業の plan を完了後に残しません。
 
-## Plan Types
+## 計画の種類
 
-- Small change: short plan inside the active task or pull request description.
-- Medium or large change: markdown file in `docs/exec-plans/active/`.
-- Completed work: move the plan to `docs/exec-plans/completed/` and leave outcomes and decisions intact.
+- 小さな変更: タスク説明の短い計画でよい
+- 中規模以上の変更: 必要に応じて `docs/exec-plans/active/` に一時 markdown を作る
+- 完了後: 個別作業の plan は削除し、永続化が必要な判断だけを該当 docs に反映する
 
-## Plan Template
+## 計画テンプレート
 
-Each execution plan should contain:
+各 execution plan には次を含めます。
 
 1. Objective
 2. Scope
@@ -21,8 +21,9 @@ Each execution plan should contain:
 7. Decision log
 8. Follow-up work
 
-## Rules
+## ルール
 
-- Keep plans concrete and executable.
-- Update plans as reality changes.
-- Do not delete decision history when work finishes.
+- 計画は具体的で実行可能にする
+- 現実が変わったら計画も更新する
+- 完了後は作業用 plan を残さない
+- 長期的に必要な判断履歴は、plan ではなく `docs/design-docs/`、`ARCHITECTURE.md`、`RULES.md` などの正本へ移す

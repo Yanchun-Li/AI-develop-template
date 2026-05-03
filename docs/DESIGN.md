@@ -1,16 +1,16 @@
 # DESIGN.md
 
-Design should optimize for agent legibility before cleverness.
+設計では、巧妙さよりも AI と人間の両方が読みやすいことを優先します。
 
-## Principles
+## 原則
 
-- Prefer explicit naming over compression.
-- Prefer stable local abstractions over opaque third-party magic.
-- Prefer repository-local knowledge over off-repo tribal knowledge.
-- Prefer boring, composable technology when it improves reasoning and maintenance.
+- 短縮より明示的な命名を優先する
+- ブラックボックスな仕組みより、局所的で安定した抽象を優先する
+- 口頭知識より、リポジトリ内知識を優先する
+- 推論しやすく保守しやすいなら、地味で合成しやすい技術を優先する
 
-## Design Review Questions
+## 設計レビューの問い
 
-- Can a new agent discover this design from the repository alone?
-- Is the boundary expressed in code and docs, not only in prompts?
-- Can the behavior be validated mechanically?
+- 新しい AI がリポジトリだけで設計を理解できるか
+- 境界が prompt だけでなく docs やコードにも表現されているか
+- その挙動は機械的に検証できるか

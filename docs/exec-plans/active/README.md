@@ -1,7 +1,9 @@
-# Active Execution Plans
+# 進行中の実行計画
 
-Place in-flight execution plans here.
+進行中の一時 execution plan はこのディレクトリに置きます。
 
-Suggested filename:
+推奨ファイル名:
 
 `YYYY-MM-DD-short-topic.md`
+
+作業が完了したら、個別作業の plan は削除します。テンプレートに残すべき判断は、該当する docs に反映してください。

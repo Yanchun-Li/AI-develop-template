@@ -1,43 +1,47 @@
 # AGENTS.md
 
-This repository is designed for agent-first development.
+このファイルは AI が最初に読む短い目次です。詳細は `docs/` と `RULES.md` に置きます。
 
-## Purpose
+## 最初に読む順番
 
-- `AGENTS.md` is the table of contents, not the full manual.
-- Deeper repository knowledge lives in versioned documents under `docs/`.
-- When a rule and code conflict, update the docs or the code so they match. Do not leave drift unresolved.
+1. `pyproject.toml` の `[tool.repo-arch]` を読み、`kind` の値を確認する
+2. `kind` に対応する `docs/architectures/<kind>.md` を読む
+   - `kind = "tbd"` の場合は `docs/architectures/index.md`（選び方）を読み、利用者に選択を促す
+3. `ARCHITECTURE.md`（共通ルール）
+4. `RULES.md`
+5. `docs/STATUS.md`
+6. `docs/PRODUCT_SENSE.md`
+7. 関連する `docs/product-specs/` と `docs/exec-plans/active/`
 
-## Operating Rules
+## アーキテクチャ選択の扱い
 
-- Prefer changing repository-local files over relying on chat history or external documents.
-- Before large changes, write or update an execution plan in `docs/exec-plans/active/`.
-- Complete work with code changes, doc changes, and validation where possible.
-- Keep business logic inside domain layers defined in `ARCHITECTURE.md`.
-- Cross-cutting infrastructure must enter domains through `src/providers/` only.
-- Do not import third-party libraries directly across many domain files when a provider or local abstraction is required.
+- リポジトリの aрхитектура は `[tool.repo-arch].kind` が正本
+- `kind = "tbd"` の間は実装に着手せず、まず利用者に選択を確認する
+- AI が独断で `kind` を変更しない
+- 一度選んだら、`docs/architectures/<kind>.md` の layer 構造と禁止事項を厳密に守る
 
-## Read This First
+## 編集範囲
 
-1. `ARCHITECTURE.md`
-2. `docs/design-docs/index.md`
-3. `docs/PLANS.md`
-4. `docs/QUALITY_SCORE.md`
-5. `docs/RELIABILITY.md`
-6. `docs/SECURITY.md`
+- 依頼で指定されたファイル / ディレクトリを優先する
+- 編集範囲が曖昧な場合は、関連 docs と `src/` 配下の選択済み layer から最小範囲を選ぶ
+- layer 境界を変更する場合は、先に `docs/architectures/<kind>.md` を更新する
+- 共通ルールを変更する場合は `ARCHITECTURE.md` と `RULES.md` を更新する
 
-## Repository Map
+## 共有 docs の役割
 
-- `docs/design-docs/`: design principles, core beliefs, and architecture notes.
-- `docs/exec-plans/active/`: in-flight execution plans.
-- `docs/exec-plans/completed/`: archived execution plans.
-- `docs/references/`: LLM-oriented reference material for tools and external systems.
-- `scripts/lint_repo_rules.py`: mechanical enforcement for repository architecture rules.
+- `docs/architectures/`: アーキテクチャ選択肢（1 つ選んで使う）
+- `docs/PRODUCT_SENSE.md`: プロダクト意図
+- `docs/product-specs/`: 機能仕様
+- `docs/STATUS.md`: 現在の進捗とアーキテクチャ選択
+- `docs/exec-plans/active/`: 進行中の作業計画
+- `docs/WORKFLOW.md`: AI 運用手順
+- `docs/CI.md`: CI とローカル検証の運用
 
-## Definition of Done
+## 重要ルール
 
-- Code follows the layer dependency rule:
-  `types -> config -> repo -> service -> runtime -> ui`
-- Cross-cutting concerns are accessed only through Providers.
-- Docs are updated for any material architectural or workflow change.
-- The repository linter passes.
+- 会話よりリポジトリ内 markdown とコードを正とする
+- `AGENTS.md` に詳細を書きすぎず、知識は `docs/` に残す
+- 期待した参照先が見つからなければ、不整合として報告する
+- 大きい変更の前には `docs/exec-plans/active/` を更新する
+- 未確定の仕様や技術選定（特に `[tool.repo-arch].kind`）を AI が勝手に固定しない
+- `docs/PRODUCT_SENSE.md` が `TBD` のままの間は、プロダクト前提を AI が推測しない

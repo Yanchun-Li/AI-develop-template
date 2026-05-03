@@ -1,87 +1,110 @@
 #!/usr/bin/env python3
-"""Repository architecture linter for the harness engineering template."""
+"""Repository architecture linter.
+
+Reads `[tool.repo-arch]` from pyproject.toml and enforces:
+
+1. Layer dependency rule: each top-level directory under `src` may only import
+   from the layers listed for it under `[tool.repo-arch.layers]`.
+2. Provider boundary: libraries in `[tool.repo-arch.provider_only].libraries`
+   may only be imported from files under any of `[tool.repo-arch].provider_dirs`.
+
+Stdlib modules and the project's own internal packages are always allowed.
+
+When `[tool.repo-arch].kind == "tbd"` (or no `layers` table is defined), layer
+checks are skipped but provider-only checks still run.
+"""
 
 from __future__ import annotations
 
 import ast
-import re
 import sys
+import tomllib
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parent.parent
-SRC_ROOT = ROOT / "src"
-DOMAINS_ROOT = SRC_ROOT / "domains"
-PROVIDERS_ROOT = SRC_ROOT / "providers"
-LAYER_ORDER = ["types", "config", "repo", "service", "runtime", "ui"]
-LAYER_INDEX = {name: idx for idx, name in enumerate(LAYER_ORDER)}
-
-# Configure raw vendor libraries that must only be imported via providers.
-PROVIDER_ONLY_LIBRARIES = {
-    "openai",
-    "anthropic",
-    "requests",
-    "httpx",
-    "sqlalchemy",
-    "psycopg",
-    "redis",
-    "boto3",
-    "structlog",
-    "loguru",
-    "prometheus_client",
-    "opentelemetry",
-}
-
-INTERNAL_PREFIXES = {"src", ""}
+PYPROJECT_PATH = ROOT / "pyproject.toml"
 PYTHON_SUFFIX = ".py"
+
+STDLIB_MODULES = set(sys.stdlib_module_names) | {"__future__"}
+
+
+class ConfigError(RuntimeError):
+    pass
 
 
 def main() -> int:
-    errors: list[str] = []
+    try:
+        config = load_config()
+    except ConfigError as exc:
+        print(f"ERROR: {exc}")
+        return 1
 
-    if not SRC_ROOT.exists():
-        print("lint_repo_rules: no src/ directory found, nothing to lint")
+    src_root = ROOT / config["src"]
+    if not src_root.exists():
+        print(f"lint_repo_rules: src root '{config['src']}' does not exist, nothing to lint")
         return 0
 
-    python_files = sorted(SRC_ROOT.rglob(f"*{PYTHON_SUFFIX}"))
-    external_import_usage: dict[str, list[Path]] = {}
+    errors: list[str] = []
+    python_files = sorted(src_root.rglob(f"*{PYTHON_SUFFIX}"))
+    internal_top_levels = collect_internal_top_levels(src_root)
 
     for file_path in python_files:
         imports = parse_imports(file_path, errors)
-        location = classify_file(file_path)
+        file_layer = top_layer_of(file_path, src_root)
 
-        for imported_module in imports:
-            top_level = imported_module.split(".")[0]
+        for imported in imports:
+            top_level = imported.split(".", maxsplit=1)[0]
 
-            if location is not None and is_internal_domain_import(imported_module):
-                maybe_add_layer_error(file_path, location, imported_module, errors)
+            if is_stdlib(top_level) or top_level in internal_top_levels:
+                check_layer_rule(file_path, file_layer, imported, src_root, config, errors)
+                continue
 
-            if top_level and top_level not in INTERNAL_PREFIXES and file_path.is_relative_to(SRC_ROOT):
-                external_import_usage.setdefault(top_level, []).append(file_path)
-                if top_level in PROVIDER_ONLY_LIBRARIES and not file_path.is_relative_to(PROVIDERS_ROOT):
-                    errors.append(
-                        f"{rel(file_path)} imports provider-only library '{top_level}' outside src/providers/"
-                    )
-
-    for library, paths in sorted(external_import_usage.items()):
-        unique_paths = sorted({rel(path) for path in paths})
-        non_provider_paths = [
-            path for path in paths if not path.is_relative_to(PROVIDERS_ROOT)
-        ]
-        if len(non_provider_paths) > 1:
-            errors.append(
-                "external library "
-                f"'{library}' is imported directly in multiple non-provider files: "
-                + ", ".join(sorted({rel(path) for path in non_provider_paths}))
-            )
+            if top_level in config["provider_only"] and not is_in_provider_dir(file_path, src_root, config):
+                errors.append(
+                    f"{rel(file_path)} imports provider-only library '{top_level}' "
+                    f"outside provider directories ({sorted(config['provider_dirs'])})"
+                )
 
     if errors:
         for error in errors:
             print(f"ERROR: {error}")
         return 1
 
-    print("lint_repo_rules: OK")
+    print(f"lint_repo_rules: OK (kind={config['kind']}, files={len(python_files)})")
     return 0
+
+
+def load_config() -> dict:
+    if not PYPROJECT_PATH.exists():
+        raise ConfigError("pyproject.toml not found at repository root")
+
+    with PYPROJECT_PATH.open("rb") as fh:
+        data = tomllib.load(fh)
+
+    repo_arch = data.get("tool", {}).get("repo-arch", {})
+    if not repo_arch:
+        raise ConfigError("[tool.repo-arch] is missing from pyproject.toml")
+
+    kind = repo_arch.get("kind", "tbd")
+    src = repo_arch.get("src", "src")
+    provider_dirs = set(repo_arch.get("provider_dirs", ["providers"]))
+    layers_raw = repo_arch.get("layers", {}) or {}
+    provider_only_raw = repo_arch.get("provider_only", {}) or {}
+    provider_only = set(provider_only_raw.get("libraries", []))
+
+    layers: dict[str, set[str]] = {}
+    for layer, allowed in layers_raw.items():
+        if not isinstance(allowed, list):
+            raise ConfigError(f"[tool.repo-arch.layers].{layer} must be a list")
+        layers[layer] = set(allowed) | {layer}
+
+    return {
+        "kind": kind,
+        "src": src,
+        "provider_dirs": provider_dirs,
+        "layers": layers,
+        "provider_only": provider_only,
+    }
 
 
 def parse_imports(file_path: Path, errors: list[str]) -> list[str]:
@@ -92,7 +115,6 @@ def parse_imports(file_path: Path, errors: list[str]) -> list[str]:
         return []
 
     imports: list[str] = []
-
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -101,7 +123,6 @@ def parse_imports(file_path: Path, errors: list[str]) -> list[str]:
             module = resolve_import_from(file_path, node)
             if module:
                 imports.append(module)
-
     return imports
 
 
@@ -110,66 +131,72 @@ def resolve_import_from(file_path: Path, node: ast.ImportFrom) -> str | None:
     if node.level == 0:
         return module
 
-    current_parts = module_path_parts(file_path)
-    if not current_parts:
+    current_parts = list(file_path.relative_to(ROOT).with_suffix("").parts)
+    if not current_parts or node.level > len(current_parts):
         return module
 
-    if node.level > len(current_parts):
-        return module
-
-    prefix = current_parts[:-node.level]
+    prefix = current_parts[: -node.level]
     if module:
-        return ".".join(prefix + module.split("."))
+        return ".".join([*prefix, *module.split(".")])
     return ".".join(prefix)
 
 
-def module_path_parts(file_path: Path) -> list[str]:
-    relative = file_path.relative_to(ROOT)
-    without_suffix = relative.with_suffix("")
-    return list(without_suffix.parts)
-
-
-def classify_file(file_path: Path) -> tuple[str, str] | None:
-    if not file_path.is_relative_to(DOMAINS_ROOT):
+def top_layer_of(file_path: Path, src_root: Path) -> str | None:
+    """Return the top-level layer directory name under `src_root` for `file_path`."""
+    try:
+        relative = file_path.relative_to(src_root)
+    except ValueError:
         return None
-
-    relative = file_path.relative_to(DOMAINS_ROOT)
-    parts = relative.parts
-    if len(parts) < 3:
+    if len(relative.parts) < 2:
         return None
-
-    domain = parts[0]
-    layer = parts[1]
-    if layer not in LAYER_INDEX:
-        return None
-    return domain, layer
+    return relative.parts[0]
 
 
-def is_internal_domain_import(module_name: str) -> bool:
-    return module_name.startswith("src.domains.")
+def collect_internal_top_levels(src_root: Path) -> set[str]:
+    """Top-level dirs under `src_root` are treated as internal packages.
+
+    Note: when `pythonpath = ["src"]` (pytest), imports look like
+    `from feature.foo import ...`, so the top-level token is the layer name.
+    """
+    return {child.name for child in src_root.iterdir() if child.is_dir()}
 
 
-def maybe_add_layer_error(
+def is_stdlib(top_level: str) -> bool:
+    return top_level in STDLIB_MODULES
+
+
+def is_in_provider_dir(file_path: Path, src_root: Path, config: dict) -> bool:
+    try:
+        relative = file_path.relative_to(src_root)
+    except ValueError:
+        return False
+    if not relative.parts:
+        return False
+    return relative.parts[0] in config["provider_dirs"]
+
+
+def check_layer_rule(
     file_path: Path,
-    location: tuple[str, str],
-    imported_module: str,
+    file_layer: str | None,
+    imported: str,
+    src_root: Path,
+    config: dict,
     errors: list[str],
 ) -> None:
-    match = re.match(r"src\.domains\.([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)", imported_module)
-    if not match:
+    if not config["layers"]:
+        return
+    if file_layer is None or file_layer not in config["layers"]:
         return
 
-    imported_domain, imported_layer = match.groups()
-    current_domain, current_layer = location
+    imported_top = imported.split(".", maxsplit=1)[0]
+    if imported_top not in config["layers"]:
+        return
 
-    if imported_domain != current_domain:
-        return
-    if imported_layer not in LAYER_INDEX:
-        return
-    if LAYER_INDEX[imported_layer] > LAYER_INDEX[current_layer]:
+    allowed = config["layers"][file_layer]
+    if imported_top not in allowed:
         errors.append(
-            f"{rel(file_path)} in layer '{current_layer}' imports later layer "
-            f"'{imported_layer}' via '{imported_module}'"
+            f"{rel(file_path)} in layer '{file_layer}' imports forbidden layer "
+            f"'{imported_top}' via '{imported}' (allowed: {sorted(allowed)})"
         )
 
 

@@ -1,22 +1,30 @@
 # QUALITY_SCORE.md
 
-Quality should be visible and tracked over time.
+品質は見える化し、時間とともに追跡できる状態にします。
 
-## Suggested Scale
+## スコア基準
 
-- `Q0`: undefined or unverified
-- `Q1`: works in happy path only
-- `Q2`: basic validation exists
-- `Q3`: reliable under normal use
-- `Q4`: strong automated validation and observability
+- `Q0`: 未定義、または未検証
+- `Q1`: happy path のみ成立
+- `Q2`: 基本的な検証がある
+- `Q3`: 通常利用で信頼できる
+- `Q4`: 強い自動検証と観測性がある
 
-## Track By Domain
+## 領域ごとの記録
 
-Record quality for each business domain and each architectural layer.
+各業務領域、各アーキテクチャ層ごとに品質を記録します。
 
-Example table:
+例:
 
 | Area | Score | Notes | Next action |
 | --- | --- | --- | --- |
-| billing/service | Q1 | basic path only | add failure tests |
-| auth/runtime | Q2 | health checks exist | add trace assertions |
+| identity/application | Q1 | 成功経路のみ想定 | 失敗系と権限不足を追加する |
+| billing/interface | Q2 | 基本テストあり | webhook retry を検証する |
+| recommendation/evaluation | Q0 | 評価指標未定義 | offline metric を決める |
+
+## 更新タイミング
+
+- MVP scope を変更したとき
+- production に影響する障害や regression が起きたとき
+- CI / E2E / monitoring を追加したとき
+- AI agent に大きな実装を任せる前後

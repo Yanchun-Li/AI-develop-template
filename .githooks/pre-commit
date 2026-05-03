@@ -4,5 +4,5 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "$repo_root"
 
-echo "Running repository architecture linter..."
-python3 scripts/lint_repo_rules.py
+echo "Running repository lint checks..."
+make lint
