@@ -90,7 +90,7 @@ CI は `.github/workflows/ci.yml` で同じコマンドを回します。詳細�
 選び方の詳細は `docs/architectures/index.md`。
 
 
-
+```text
 .
 ├── .rulesync/
 │   └── rules/
@@ -131,3 +131,4 @@ CI は `.github/workflows/ci.yml` で同じコマンドを回します。詳細�
 │   └── destination-recommender/
 ├── proto/
 └── scripts/
+```
