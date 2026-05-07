@@ -88,3 +88,46 @@ CI は `.github/workflows/ci.yml` で同じコマンドを回します。詳細�
 | `mobile-app` | スマホアプリ、端末機能、offline、push、位置情報 |
 
 選び方の詳細は `docs/architectures/index.md`。
+
+
+
+.
+├── .rulesync/
+│   └── rules/
+│       └── overview.md
+├── AGENTS.md
+├── CLAUDE.md
+├── GEMINI.md
+├── ARCHITECTURE.md
+├── Makefile
+├── README.md
+├── docs/                             
+│   ├── DESIGN.md                   
+│   ├── SECURITY.md
+│   ├── RELIABILITY.md
+│   ├── WORKFLOW.md                  
+│   ├── STATUS.md
+│   ├── PRODUCT_SENSE.md
+│   ├── PLANS.md
+│   ├── FRONTEND.md
+│   ├── QUALITY_SCORE.md
+│   └── exec-plans/                 
+│       ├── active/
+│       ├── completed/
+│       └── tech-debt-tracker.md
+├── mobile/
+│   ├── AGENTS.md
+│   ├── ARCHITECTURE.md
+│   ├── docs/
+│   └── src/
+├── backend/
+│   ├── AGENTS.md
+│   ├── ARCHITECTURE.md
+│   ├── docs/
+│   └── src/
+├── ml/
+│   ├── docs/
+│   ├── match-maker/
+│   └── destination-recommender/
+├── proto/
+└── scripts/
