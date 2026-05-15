@@ -15,7 +15,17 @@
 1. `pyproject.toml` の `[tool.repo-arch].kind` が選択済みか確認する（`tbd` なら先に選ばせる）
 2. タスクの編集範囲を、選択された architecture の layer に当てはめる
 3. 仕様が曖昧なら、まず `docs/product-specs/` または関連 docs に前提を書く
-4. 大きい変更なら `docs/exec-plans/active/` に計画を書く
+4. 新機能、少し複雑な変更、複数ファイル / 複数コンポーネント変更なら `docs/exec-plans/active/` に計画を書く
+5. 計画レビューまたは利用者との合意が終わるまで実装に進まない
+
+## Execution Plan Lifecycle
+
+新機能、少し複雑な変更、複数ファイル / 複数コンポーネント変更、仕様 / 設計 / 契約に影響する変更では、次の順番を守ります。
+
+1. `docs/exec-plans/active/YYYY-MM-DD-short-topic-plan.md` に実行計画を作る
+2. 計画レビューまたは利用者との合意を得る
+3. 実装と検証を進め、前提が変わったら計画を更新する
+4. 完了時に検証結果と残リスクを記録し、同じファイルを `docs/exec-plans/completed/` に移す
 
 ## 長時間エージェント向けの入口
 

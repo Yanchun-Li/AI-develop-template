@@ -15,7 +15,8 @@
 - 編集範囲が曖昧な場合は、関連 docs とコード構造から最小範囲を選ぶ
 - 他コンポーネントの変更が必要な場合は、まず docs に依存関係として記録する
 - 共有契約、横断ルール、CI 運用、品質基準を変える場合はルート `docs/` と `RULES.md` を更新する
-- 大きい変更や複数コンポーネント変更の前には `docs/exec-plans/active/` を追加または更新する
+- 新機能、少し複雑な変更、複数ファイル / 複数コンポーネント変更、仕様 / 設計 / 契約に影響する変更は、実装前に `docs/exec-plans/active/` に実行計画を作るか更新する
+- 実行計画なしで着手できるのは、誤字修正、表記揺れ修正、単一行の明白な修正など、挙動と設計判断を変えない小変更だけ
 
 ## 3. Architecture
 
@@ -61,8 +62,18 @@
 - `AGENTS.md` に詳細を書きすぎない
 - 長期知識は `docs/` に残す
 - 機能仕様は `docs/product-specs/` に置く
-- 実行計画は `docs/exec-plans/active/`、完了後は `docs/exec-plans/completed/` に移す
+- 実行計画は `docs/exec-plans/active/`、完了後は同じ計画ファイルを `docs/exec-plans/completed/` に移す
 - 古くなった文書は削除するか obsolete を明示する
+
+### Execution Plan Lifecycle
+
+新機能、少し複雑な変更、複数ファイル / 複数コンポーネント変更、仕様 / 設計 / 契約に影響する変更では、次の順番を必ず守る。
+
+1. `docs/exec-plans/active/YYYY-MM-DD-short-topic-plan.md` に実行計画を作る
+2. 計画に Objective、Scope、Constraints、Open questions、Implementation steps、Validation steps、Decision log、Follow-up work を書く
+3. 計画レビューまたは利用者との合意を得てから実装する
+4. 実装中に前提や手順が変わったら、会話だけでなく計画ファイルも更新する
+5. 検証後、結果と残リスクを計画に残し、同じファイルを `docs/exec-plans/completed/` に移す
 
 ## 9. Validation
 

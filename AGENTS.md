@@ -34,6 +34,7 @@
 - `docs/product-specs/`: 機能仕様
 - `docs/STATUS.md`: 現在の進捗とアーキテクチャ選択
 - `docs/exec-plans/active/`: 進行中の作業計画
+- `docs/exec-plans/completed/`: 完了済みの作業計画
 - `docs/WORKFLOW.md`: AI 運用手順
 - `docs/CI.md`: CI とローカル検証の運用
 
@@ -42,6 +43,7 @@
 - 会話よりリポジトリ内 markdown とコードを正とする
 - `AGENTS.md` に詳細を書きすぎず、知識は `docs/` に残す
 - 期待した参照先が見つからなければ、不整合として報告する
-- 大きい変更の前には `docs/exec-plans/active/` を更新する
+- 新機能、少し複雑な変更、複数ファイル / 複数コンポーネント変更では、必ず `docs/exec-plans/active/` に実行計画を置く
+- 実行順序は active plan 作成 -> レビュー / 合意 -> 実装 / 検証 -> `docs/exec-plans/completed/` へ移動
 - 未確定の仕様や技術選定（特に `[tool.repo-arch].kind`）を AI が勝手に固定しない
 - `docs/PRODUCT_SENSE.md` が `TBD` のままの間は、プロダクト前提を AI が推測しない
