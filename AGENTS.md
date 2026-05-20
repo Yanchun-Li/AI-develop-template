@@ -47,3 +47,19 @@
 - 実行順序は active plan 作成 -> レビュー / 合意 -> 実装 / 検証 -> `docs/exec-plans/completed/` へ移動
 - 未確定の仕様や技術選定（特に `[tool.repo-arch].kind`）を AI が勝手に固定しない
 - `docs/PRODUCT_SENSE.md` が `TBD` のままの間は、プロダクト前提を AI が推測しない
+
+## 文書を書く / 更新するとき
+
+新規 markdown 文書を作るときは、対応する skill を使う。skill 定義は `.claude/skills/<name>/SKILL.md` に置く。
+
+- 新しい exec-plan を作る → `.claude/skills/exec-plan/`
+- 新しい product-spec を作る → `.claude/skills/product-spec/`
+- アーキテクチャ決定を記録する（ADR） → `.claude/skills/adr/`
+- 既存 docs の更新 → 対象ファイルの frontmatter と既存構造に従う
+
+更新ポリシー:
+
+- **Immutable**（書いた後は基本変更しない）: `docs/architectures/`, `docs/exec-plans/completed/`, ADR
+  - 修正が必要な場合は新ファイルを作り、旧ファイルの frontmatter を `status: superseded` に変更し、`superseded_by` で新ファイルへリンクする
+- **Living**（継続更新する）: `docs/STATUS.md`, `docs/PRODUCT_SENSE.md`, `docs/product-specs/`, `docs/exec-plans/active/`
+  - 直接更新可。更新時に `last_verified` を当日日付に更新する
