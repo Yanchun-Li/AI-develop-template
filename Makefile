@@ -23,11 +23,12 @@ lock-check: ## Check uv.lock is in sync with pyproject.toml
 
 lint: ## Run repository and Python linters
 	uv run python scripts/lint_repo_rules.py
-	uv run ruff check src scripts tests
+	uv run ruff format --check src scripts tests .claude/hooks
+	uv run ruff check src scripts tests .claude/hooks
 
 fmt: ## Format and autofix Python files
-	uv run ruff format src scripts tests
-	uv run ruff check --fix src scripts tests
+	uv run ruff format src scripts tests .claude/hooks
+	uv run ruff check --fix src scripts tests .claude/hooks
 
 test: ## Run pytest
 	uv run pytest
