@@ -38,6 +38,26 @@
 - `docs/WORKFLOW.md`: AI 運用手順
 - `docs/CI.md`: CI とローカル検証の運用
 
+## Agents と Skills（2 軸で整理）
+
+AI 設定は **agents（誰に任せるか）** と **skills（どう進めるか）** の 2 軸で置く。
+Claude Code / Codex の両方が同じものを使えるよう、配置を対称にしている。
+
+| 軸 | 中身 | Claude Code | Codex |
+| --- | --- | --- | --- |
+| **agents** | 役割ベースの subagent 定義（`agency-agents` 由来） | `.claude/agents/<slug>.md` | `.codex/agents/<slug>.toml` |
+| **skills** | 文書を書く / 手順を踏む方法論 | `.claude/skills/<name>/SKILL.md` | `.codex/skills/<name>/SKILL.md` |
+
+- **agents**: 計 28 体。slug（ファイル名）は `.claude/agents/` と `.codex/agents/` で完全一致させる。
+  選定理由と一覧は各ディレクトリの `README.md` を参照。これらはルート雛形（新規プロジェクト用）に同梱する。
+- **skills**: 正本は `.claude/skills/`。`.codex/skills/` はその同期コピーで、`make skills-sync` で反映する
+  （`.codex/skills/` の skill を直接編集しない）。
+- **スコープ**: 既存リポジトリ向けの AIDD overlay 配布物（`templates/aidd-overlay/`）には agents/skills を
+  含めない（`docs/exec-plans/active/2026-05-31-aidd-overlay-installer-plan.md` の Non-Goal）。
+- **subagent ルール**: 原則 `1 subagent = 1 primary 定義`（Claude Code は `.md`、Codex は `.toml`）。
+  複数観点が必要なら subagent を分ける（例: `ui-designer` -> `accessibility-auditor` -> `code-reviewer`）。
+  agent / skill 定義を変更したら、各ツールを再起動して再読み込みする。
+
 ## 重要ルール
 
 - 会話よりリポジトリ内 markdown とコードを正とする
@@ -50,7 +70,8 @@
 
 ## 文書を書く / 更新するとき
 
-新規 markdown 文書を作るときは、対応する skill を使う。skill 定義は `.claude/skills/<name>/SKILL.md` に置く。
+新規 markdown 文書を作るときは、対応する skill を使う。skill 定義の正本は `.claude/skills/<name>/SKILL.md`
+に置き、Codex 用に `.codex/skills/<name>/SKILL.md` へ同期する（`make skills-sync`）。
 
 - 新しい exec-plan を作る → `.claude/skills/exec-plan/`
 - 新しい product-spec を作る → `.claude/skills/product-spec/`

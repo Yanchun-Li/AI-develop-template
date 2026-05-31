@@ -1,4 +1,4 @@
-.PHONY: help init setup hooks lock-check lint fmt test clean
+.PHONY: help init setup hooks lock-check lint fmt test clean skills-sync skills-check
 
 UV_SYNC_FLAGS := --all-extras --all-groups
 
@@ -32,6 +32,23 @@ fmt: ## Format and autofix Python files
 
 test: ## Run pytest
 	uv run pytest
+
+skills-sync: ## Sync skill dirs .claude/skills/*/ -> .codex/skills/ (canonical source is .claude/skills; per-tool README.md kept)
+	@mkdir -p .codex/skills
+	@for d in .claude/skills/*/; do \
+		name=$$(basename "$$d"); \
+		rm -rf ".codex/skills/$$name"; \
+		cp -R "$$d" ".codex/skills/$$name"; \
+		echo "synced $$name"; \
+	done
+	@echo "Synced .claude/skills/*/ -> .codex/skills/. Restart Codex to pick up changes."
+
+skills-check: ## Verify .codex/skills skill dirs match .claude/skills (drift guard; README.md excluded)
+	@diff -r -x README.md .claude/skills .codex/skills >/dev/null 2>&1 && echo "OK: .codex/skills is in sync with .claude/skills" || { \
+		echo "DRIFT: .codex/skills differs from .claude/skills. Run 'make skills-sync'."; \
+		diff -rq -x README.md .claude/skills .codex/skills || true; \
+		exit 1; \
+	}
 
 clean: ## Remove local Python caches
 	rm -rf .ruff_cache .pytest_cache .coverage htmlcov

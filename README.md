@@ -68,6 +68,48 @@ make init
 
 `make init` は `uv sync` で依存を入れ、git hooks を設定します。
 
+## 既存 repo に AIDD overlay を入れる
+
+既にコード構造がある repo には、root template を丸ごと適用せず、local-only overlay を入れます。
+
+```bash
+/Users/s30000/Downloads/AI-develop-template/scripts/aidd-init.sh /path/to/target-repo
+```
+
+target repo 直下で実行する場合は引数を省略できます。
+
+```bash
+/Users/s30000/Downloads/AI-develop-template/scripts/aidd-init.sh
+```
+
+作成される構成:
+
+```text
+<target-repo>/
+├── AGENTS.md
+├── CLAUDE.md
+└── .aidd/
+    ├── RULES.md
+    └── docs/
+        ├── CI.md
+        ├── DESIGN.md
+        ├── PLANS.md
+        ├── PRODUCT_SENSE.md
+        ├── QUALITY_SCORE.md
+        ├── RELIABILITY.md
+        ├── SECURITY.md
+        ├── STATUS.md
+        ├── WORKFLOW.md
+        ├── adr/
+        ├── design-docs/
+        ├── exec-plans/
+        ├── product-specs/
+        └── tasks/
+```
+
+`templates/aidd-overlay/` が配布元です。overlay には `docs/architectures/`、hooks、skills、agents、CI workflow は含めません。
+`scripts/aidd-init.sh` は既存の `AGENTS.md` / `CLAUDE.md` を上書きせず、git repo では `.git/info/exclude` に local overlay path を追加します。
+
 ## 検証
 
 ```bash
