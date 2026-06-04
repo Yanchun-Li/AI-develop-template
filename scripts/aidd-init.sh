@@ -3,20 +3,47 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Usage: aidd-init.sh [TARGET_DIR]
+Usage: aidd-init.sh [--force] [TARGET_DIR]
 
 Install the local AIDD overlay into an existing repository or directory.
 When TARGET_DIR is omitted, the current git root is used if available;
 otherwise the current directory is used.
 
-The installer does not overwrite existing AGENTS.md or CLAUDE.md files.
+By default, the installer does not overwrite existing .aidd, AGENTS.md,
+or CLAUDE.md files. Use --force to refresh .aidd from the template.
+AGENTS.md and CLAUDE.md are never overwritten.
 USAGE
 }
 
-if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
-  usage
-  exit 0
-fi
+force=0
+target_dir=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h | --help)
+      usage
+      exit 0
+      ;;
+    --force)
+      force=1
+      shift
+      ;;
+    -*)
+      echo "error: unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+    *)
+      if [[ -n "$target_dir" ]]; then
+        echo "error: only one TARGET_DIR may be provided" >&2
+        usage >&2
+        exit 1
+      fi
+      target_dir="$1"
+      shift
+      ;;
+  esac
+done
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 template_root="$(cd "$script_dir/.." && pwd)"
@@ -27,16 +54,19 @@ if [[ ! -d "$overlay_root/.aidd" ]]; then
   exit 1
 fi
 
-if [[ $# -gt 0 ]]; then
-  target_dir="$1"
-else
+if [[ -z "$target_dir" ]]; then
   target_dir="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 fi
 
 mkdir -p "$target_dir"
 target_dir="$(cd "$target_dir" && pwd)"
 
-rsync -a "$overlay_root/.aidd/" "$target_dir/.aidd/"
+if [[ -e "$target_dir/.aidd" && "$force" -ne 1 ]]; then
+  echo "skip: .aidd already exists (use --force to refresh it)"
+else
+  rsync -a "$overlay_root/.aidd/" "$target_dir/.aidd/"
+  echo "synced: .aidd"
+fi
 
 if [[ -e "$target_dir/AGENTS.md" ]]; then
   echo "skip: AGENTS.md already exists"

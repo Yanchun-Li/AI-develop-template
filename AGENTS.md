@@ -7,11 +7,32 @@
 1. `pyproject.toml` の `[tool.repo-arch]` を読み、`kind` の値を確認する
 2. `kind` に対応する `docs/architectures/<kind>.md` を読む
    - `kind = "tbd"` の場合は `docs/architectures/index.md`（選び方）を読み、利用者に選択を促す
+   - また、kickoff 時は `grill-with-docs` skill を起動し、現在のフェーズ（探索 / 意思決定 / 本番化 / 運用）と使うアプローチ（Vibe Coding / SDD / AIDD）を利用者と擦り合わせる。AI 単独で判断しない
 3. `ARCHITECTURE.md`（共通ルール）
 4. `RULES.md`
 5. `docs/STATUS.md`
 6. `docs/PRODUCT_SENSE.md`
 7. 関連する `docs/product-specs/` と `docs/exec-plans/active/`
+
+## フェーズ / アプローチを使い分ける
+
+新規プロジェクトと既存プロジェクトのフェーズ移行時に、AI は静的設定を読むのではなく `grill-with-docs` で利用者と対話して確定する。
+
+| フェーズ | 使うアプローチ | 主な出力 |
+| --- | --- | --- |
+| 探索（`kind = "tbd"` 含む） | Vibe Coding | スパイク、PRODUCT_SENSE 初稿 |
+| 意思決定 | SDD（Spec-Driven） | architectures / ADR / product-specs |
+| 本番化 | AIDD（plan → 質問 → 承認 → 実装） | layer 実装 + test |
+| 運用 | AIDD + L1 はスコアベース HITL（`RULES.md §10`） | バグ修正 / 機能追加 |
+
+擦り合わせるべき質問の典型:
+
+- このプロジェクト（または今回の作業）は捨てる前提のスパイクか、続ける前提か
+- 現時点で確定している契約 / スキーマはあるか
+- 最初の deploy 想定はいつか（= 本番化フェーズに入る時期）
+- 人間が承認する変更の範囲はどこまでか（`RULES.md §10` の HITL trigger に追加すべき項目）
+
+grill の結果は会話に残さず、必要に応じて ADR / `docs/PRODUCT_SENSE.md` / `docs/exec-plans/active/` に書き戻す。
 
 ## アーキテクチャ選択の扱い
 
@@ -53,7 +74,7 @@ Claude Code / Codex の両方が同じものを使えるよう、配置を対称
 - **skills**: 正本は `.claude/skills/`。`.codex/skills/` はその同期コピーで、`make skills-sync` で反映する
   （`.codex/skills/` の skill を直接編集しない）。
 - **スコープ**: 既存リポジトリ向けの AIDD overlay 配布物（`templates/aidd-overlay/`）には agents/skills を
-  含めない（`docs/exec-plans/active/2026-05-31-aidd-overlay-installer-plan.md` の Non-Goal）。
+  含めない（`docs/exec-plans/completed/2026-05-31-aidd-overlay-installer-plan.md` の Non-Goal）。
 - **subagent ルール**: 原則 `1 subagent = 1 primary 定義`（Claude Code は `.md`、Codex は `.toml`）。
   複数観点が必要なら subagent を分ける（例: `ui-designer` -> `accessibility-auditor` -> `code-reviewer`）。
   agent / skill 定義を変更したら、各ツールを再起動して再読み込みする。

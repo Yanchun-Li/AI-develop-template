@@ -73,13 +73,13 @@ make init
 既にコード構造がある repo には、root template を丸ごと適用せず、local-only overlay を入れます。
 
 ```bash
-/Users/s30000/Downloads/AI-develop-template/scripts/aidd-init.sh /path/to/target-repo
+./scripts/aidd-init.sh /path/to/target-repo
 ```
 
-target repo 直下で実行する場合は引数を省略できます。
+script を shell の `PATH` に置いた場合は、target repo 直下で引数を省略できます。
 
 ```bash
-/Users/s30000/Downloads/AI-develop-template/scripts/aidd-init.sh
+aidd-init.sh
 ```
 
 作成される構成:
@@ -108,7 +108,8 @@ target repo 直下で実行する場合は引数を省略できます。
 ```
 
 `templates/aidd-overlay/` が配布元です。overlay には `docs/architectures/`、hooks、skills、agents、CI workflow は含めません。
-`scripts/aidd-init.sh` は既存の `AGENTS.md` / `CLAUDE.md` を上書きせず、git repo では `.git/info/exclude` に local overlay path を追加します。
+`scripts/aidd-init.sh` は既存の `.aidd/` / `AGENTS.md` / `CLAUDE.md` を上書きせず、git repo では `.git/info/exclude` に local overlay path を追加します。
+`.aidd/` を template から再同期したい場合だけ `./scripts/aidd-init.sh --force` を使います。
 
 ## 検証
 

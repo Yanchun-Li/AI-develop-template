@@ -46,3 +46,52 @@ def test_aidd_init_installs_overlay_without_overwriting_bridges(tmp_path: Path) 
     assert ".aidd/" in exclude
     assert "AGENTS.md" in exclude
     assert "CLAUDE.md" in exclude
+
+
+def test_aidd_init_does_not_overwrite_existing_overlay_without_force(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True, text=True)
+
+    subprocess.run(
+        ["bash", str(ROOT / "scripts" / "aidd-init.sh"), str(repo)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    custom_rules = "custom local rules\n"
+    (repo / ".aidd" / "RULES.md").write_text(custom_rules)
+
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts" / "aidd-init.sh"), str(repo)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "skip: .aidd already exists" in result.stdout
+    assert (repo / ".aidd" / "RULES.md").read_text() == custom_rules
+
+
+def test_aidd_init_force_refreshes_overlay(tmp_path: Path) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+
+    subprocess.run(
+        ["bash", str(ROOT / "scripts" / "aidd-init.sh"), str(repo)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    (repo / ".aidd" / "RULES.md").write_text("custom local rules\n")
+
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts" / "aidd-init.sh"), "--force", str(repo)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    assert "synced: .aidd" in result.stdout
+    assert (repo / ".aidd" / "RULES.md").read_text() != "custom local rules\n"
